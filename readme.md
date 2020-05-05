@@ -105,8 +105,9 @@ rvm use 2.6.0
 Clone microkube repository
 ```
 cd $HOME
-git clone https://github.com/poseidon-j/microkube-for-2.3.11.git
-cd microkube-for-2.3.11
+git clone https://github.com/openware/opendax.git
+cd opendax
+
 ```
 
 ## Step 4: Clone your frontend
