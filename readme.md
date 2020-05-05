@@ -1,4 +1,4 @@
-# Install MicroKube For version peatio 2.3.11 in Ubuntu 18.04 Documented by poseidon ~ telegram id: @devapangecoin (Demo https://app.rangecoinplatform.me ) soon update document for ubuntu 20.04.
+# Install Opendax in Ubuntu 18.04 Documented by deva ~ telegram id: @devapangecoin (Demo https://app.rangecoinplatform.me ) soon update document for ubuntu 20.04.
 
 ## Step 1: Install Docker
 
