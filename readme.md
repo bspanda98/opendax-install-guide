@@ -1,145 +1,133 @@
-# MicroKube
+# Install MicroKube For version peatio 2.3.11 in Ubuntu 18.04 Documented by poseidon ~ telegram id: @pos3idon (Demo https://coincooper.com ) soon update document for ubuntu 20.04.
 
-**Please note, that this project is deprecated and moved to https://github.com/openware/opendax**
+## Step 1: Install Docker
 
-> Minimal stack for VM deployment.
+To install Docker you will need to do those steps with `sudo` or login as root user with `sudo -i`
 
-## Getting started
-
-### Install ruby with rvm
+Create a Unix user for holding your application
+```
+sudo adduser app
+sudo usermod -a -G sudo app
 
 ```
-gpg --keyserver hkp://keys.gnupg.net --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 7D2BAF1CF37B13E2069D6956105BD0E739499BDB
-curl -sSL https://get.rvm.io | bash -s stable
-```
 
-### Bundle install depedencies
+### Installing from apt-get
 
-```
-bundle
-rake -T
-```
-
-### Run everything
+First, update your existing list of packages:
 
 ```
-rake service:all
+apt update
 ```
 
-Insert in file `/etc/hosts`
-```
-0.0.0.0 www.app.local
-0.0.0.0 monitor.app.local
-```
-
-You can login on `www.app.local` with the following default users from seeds.yaml
-```
-Seeded users:
-Email: admin@barong.io, password: 0lDHd9ufs9t@
-Email: john@barong.io, password: Am8icnzEI3d!
-```
-
-## Usage
-
-### Initial configuration
-
-All the MicroKube deployment files have their confguration stored in `config/app.yml`.
-
-Feel free to fill it out with correct values:
-
-| Parameter         | Description                                      |
-| ----------------- | ------------------------------------------------ |
-| `app.name`        | Global application name                          |
-| `app.domain`      | Base domain name to be used                      |
-| `ssl.enabled`     | Enable SSL certificate generation                |
-| `ssl.email`       | Email address to use for SSL generation requests |
-| `images`          | Application images tags                          |
-| `vendor`          | Frontend application Git repo URL                |
-
-Once you're done with the configuration, render the files using `rake render:config`. You can easily apply your changes at any time by running this command.
-
-    Note: be sure to append all the subdomains based on app.domain to your
-    /etc/hosts file if you're running MicroKube locally
-
-### Bringing up the stack
-
-The MicroKube stack can be brought up using two ways:
-
-1. Bootstrap all the components at once using `rake service:all[start]`
-2. Start every component one by one using `rake service:*component*[start]`
-
-The components included in the stack are:
-
-- `proxy` - [Traefik](https://traefik.io/), a robust cloud native edge router/reverse proxy written in Go
-- `backend` - [Vault](https://www.vaultproject.io), [MySQL](https://www.mysql.com), [Redis](https://redis.io) and [RabbitMQ](https://www.rabbitmq.com) grouped together
-- `cryptonodes` - cryptocurrency nodes such as [Geth](https://github.com/ethereum/go-ethereum) **[Optional]**
-- `daemons` - Peatio daemons and Ranger **[Optional]**
-- `setup` - setup hooks for Peatio and Barong to run before the application starts(DB migration etc.)
-- `app` - [Peatio](https://github.com/rubykube/peatio), [Barong](https://github.com/rubykube/barong) and the [Ambassador](https://www.getambassador.io) API gateway
-- `frontend` - the frontend application located at `vendor/frontend`
-- `tower` - the Tower admin panel application located at `vendor/tower`
-
-For example, to start the `backend` services, you'll simply need to run `rake service:backend[start]`
-
-    Note: all the components marked as [Optional] need to be installed using
-    rake service:*component*[start] explicitly
-
-Go ahead and try your deployment on www.your.domain!
-
-### Stopping and restarting components
-
-Any component from the stack can be easily stopped or restarted using `rake service:*component*[stop]` and `rake service:*component*[restart]`.
-
-For example, `rake service:frontend[stop]` would stop the frontend application container and `rake service:proxy[restart]` would completely restart the reverse proxy container.
-
-### Accessing the deployment
-
-    Note: Make sure your VM of choice has its firewall rules configured to let in
-    HTTP and/or HTTPS traffic and your DNS entries are pointing at its external IP.
-
-All the components with external endpoints are accessible by their respective subdomains based on the domain provided in the configuration:
-
-- `www.base.domain` - frontend application and Peatio and Barong APIs mounted on `/api`
-- `peatio.base.domain` - Peatio UI and API
-- `barong.base.domain` - Barong API
-- `tower.base.domain` - the Tower admin panel application
-- `monitor.base.domain` - Traefik's dashboard useful for monitoring which components are enabled
-- `ws.ranger.base.domain` - Ranger's WebSocket endpoint **[Optional]**
-- `eth.base.domain` - Geth JSON RPC API **[Optional]**
-
-## Using Vendor
-
-Fill in the list of vendor to clone in app.yaml
-
-#### Render compose file
-```
-rm compose/vendor.yaml
-rake render:config
-```
-
-Review the generated file
-
-#### Clone the vendors and start
-```
-source ./bin/set-env.sh
-rake vendor:clone
-docker-compose -f compose/vendor.yaml up -d
-```
-
-## Terraform Infrastructure as Code Provisioning
-
-You can easily bring up Microkube from scratch on Google Cloud Platform using [Terraform](https://www.terraform.io)!
-
-To do this, just follow these simple steps:
-  - Fill `app.yml` with correct values
-  - Run `rake terraform:apply`
-  - Access your VM from the GCP Cloud Console
-  - Have fun using it!
-
-To destroy the provisioned infrastructure, just run `rake terraform:destroy`
-
-## Installer tool
+Next, install a few prerequisite packages which let apt use packages over HTTPS:
 
 ```
-ruby -e "$(curl -fsSL https://raw.githubusercontent.com/rubykube/microkube/master/bin/install)"
+apt install apt-transport-https ca-certificates curl software-properties-common -y
 ```
+
+Then add the GPG key for the official Docker repository to your system:
+
+```
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+```
+
+Add the Docker repository to APT sources:
+
+```
+add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu bionic stable"
+```
+
+Next, update the package database with the Docker packages from the newly added repo:
+
+```
+apt update
+```
+
+Make sure you are about to install from the Docker repo instead of the default Ubuntu repo:
+
+Finally, install Docker:
+
+```
+apt install docker-ce -y
+```
+
+Docker should now be installed, the daemon started, and the process enabled to start on boot. Check that it's running:
+
+```
+systemctl status docker
+```
+
+Add your app user into the docker group
+
+```
+usermod -aG docker app
+```
+
+## Step 2: Install Docker Compose
+
+Run this command to download the latest version of Docker Compose:
+
+```
+sudo curl -L "https://github.com/docker/compose/releases/download/1.25.5/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+
+chmod +x /usr/local/bin/docker-compose
+```
+
+## Step 3: Clone MicroKube
+
+Login to your app user:
+```
+su - app
+
+```
+Install Ruby
+```
+sudo apt-get install git curl zlib1g-dev build-essential \
+           libssl-dev libreadline-dev libyaml-dev libsqlite3-dev sqlite3 \
+           libxml2-dev libxslt1-dev libcurl4-openssl-dev libffi-dev -y
+```
+Installing rvm
+```
+gpg --keyserver hkp://keys.gnupg.net \
+             --recv-keys 409B6B1796C275462A1703113804BB82D39DC0E3 \
+                         7D2BAF1CF37B13E2069D6956105BD0E739499BDB
+
+ \curl -sSL https://get.rvm.io | bash -s stable --ruby=2.6.0 --gems=rails
+```
+Source RVM
+
+
+```
+source /home/app/.rvm/scripts/rvm
+rvm use 2.6.0
+```
+
+Clone microkube repository
+```
+cd $HOME
+git clone https://github.com/poseidon-j/microkube-for-2.3.11.git
+cd microkube-for-2.3.11
+```
+
+## Step 4: Clone your frontend
+
+Edit config file `config/app.yml`
+
+DO `rake service:all` couples of times
+
+
+# username and password:   
+  
+ - email: admin@barong.io
+ 
+   password: `YOU WILL GET IT IN TERMINAL WHILE BARONG RUN`
+  
+   role: admin
+    
+ - email: john@barong.io
+  
+   password: Am8icnzEI3d!
+  
+   role: member
+   
+   
